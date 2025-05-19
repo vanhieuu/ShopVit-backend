@@ -18,26 +18,100 @@ export const createProduct = async (
     res.status(400).json({ error: err.message });
   }
 };
-export const getProducts = async (
-  _req: Request,
-  res: Response
-): Promise<void> => {
+export const getProducts = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const list = await Product.find().sort("-createdAt");
+    const products = await Product.find().sort('-createdAt');
+    // Đảm bảo category luôn có giá trị
+    const list = products.map(p => ({
+      _id: p._id,
+      name: p.name,
+      qrCode: p.qrCode,
+      costPrice: p.costPrice,
+      salePrice: p.salePrice,
+      stockQty: p.stockQty,
+      category: p.category || 'Khác',
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      __v: p.__v
+    }));
     res.status(200).json({
-      status: "success",
-      data: {
-        list,
-      },
+      status: 'success',
+      data: { list }
     });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 };
-export const getProductsByCategory = async (req: Request, res: Response): Promise<void> => {
+export const getProductsByCategory = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const category = req.params.category as string;
-    const list = await Product.find({ category }).sort('-createdAt');
+    const list = await Product.find({ category }).sort("-createdAt");
+    res.status(200).json(list);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+export const createOrUpdateProduct = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { qrCode, name, costPrice, salePrice, category } =
+      req.body as Partial<IProduct>;
+    // Tìm sản phẩm theo qrCode hoặc name nếu cung cấp
+    let product = null;
+    if (qrCode) {
+      product = await Product.findOne({ qrCode });
+    }
+    if (!product && name) {
+      product = await Product.findOne({ name });
+    }
+
+    if (product) {
+      // Đã có sẵn: cập nhật thông tin nếu cần
+      if (costPrice !== undefined) product.costPrice = costPrice;
+      if (salePrice !== undefined) product.salePrice = salePrice;
+      if (category) product.category = category;
+      await product.save();
+      return res
+        .status(200)
+        .json({ message: "Cập nhật sản phẩm thành công", product });
+    }
+
+    // Không tồn tại: tạo mới
+    const newProduct = await Product.create({
+      qrCode: qrCode ?? "",
+      name: name ?? "",
+      costPrice: costPrice ?? 0,
+      salePrice: salePrice ?? 0,
+      category: category ?? "Khác",
+    });
+
+    res
+      .status(201)
+      .json({ message: "Tạo sản phẩm mới thành công", product: newProduct });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+};
+export const searchProducts = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const q = (req.query.q as string)?.trim();
+    if (!q) {
+      return res.status(400).json({ error: 'Không tìm thấy sản phẩm ' });
+    }
+    const regex = new RegExp(q, 'i');
+
+    // Thêm collation để search không phân biệt dấu tiếng Việt
+    const list = await Product.find({
+      $or: [{ name: regex }, { qrCode: regex }]
+    })
+    .collation({ locale: 'vi', strength: 1 })
+    .sort('-createdAt');
+
     res.status(200).json(list);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
