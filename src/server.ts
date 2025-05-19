@@ -35,6 +35,7 @@ app.use((err:Error,req: Request, res: Response, next: NextFunction) => {
   });
 });
 const PORT = process.env.PORT  ? parseInt(process.env.PORT,10) : 4000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
