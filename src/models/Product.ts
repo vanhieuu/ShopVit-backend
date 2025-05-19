@@ -7,6 +7,7 @@ export interface IProduct extends Document {
   stockQty: number;
   createdAt: Date;
   updatedAt: Date;
+  category:string;
 }
 
 const productSchemea = new Schema<IProduct>(
@@ -16,6 +17,7 @@ const productSchemea = new Schema<IProduct>(
     costPrice: { type: Number, required: true },
     salePrice: { type: Number, required: true },
     stockQty: { type: Number, required: true, default: 0 },
+    category: { type: String, required: true },
   },
   { timestamps: true }
 );

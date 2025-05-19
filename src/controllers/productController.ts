@@ -34,3 +34,12 @@ export const getProducts = async (
     res.status(400).json({ error: err.message });
   }
 };
+export const getProductsByCategory = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const category = req.params.category as string;
+    const list = await Product.find({ category }).sort('-createdAt');
+    res.status(200).json(list);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
