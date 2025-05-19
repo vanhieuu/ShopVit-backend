@@ -7,7 +7,7 @@ const productRouter = Router();
 productRouter.post('/', createProduct);
 
 // Lấy danh sách tất cả sản phẩm
-productRouter.get('/', getProducts);
+productRouter.get('/get-prod', getProducts);
 
 
 
