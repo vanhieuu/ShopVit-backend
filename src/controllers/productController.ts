@@ -62,19 +62,17 @@ export const createOrUpdateProduct = async (
   res: Response
 ): Promise<any> => {
   try {
-    const { qrCode, name, costPrice, salePrice, category,stockQty } =
+    const { qrCode, name, costPrice, salePrice, category,imageUrl } =
       req.body as Partial<IProduct>;
-    // Tìm sản phẩm theo qrCode hoặc name nếu cung cấp
-    let product = null;
-    if (qrCode) {
-      product = await Product.findOne({ qrCode });
-    }
-    if (!product && name) {
-      product = await Product.findOne({ name });
+    if (!qrCode) {
+      return res.status(400).json({ error: "Trường qrCode là bắt buộc" });
     }
 
+    // Luôn tìm đúng theo qrCode
+    let product = await Product.findOne({ qrCode });
     if (product) {
-      // Đã có sẵn: cập nhật thông tin nếu cần
+      // Nếu tồn tại, chỉ cập nhật các trường được truyền lên
+      if (name && name !== product.name) product.name = name;
       if (costPrice !== undefined) product.costPrice = costPrice;
       if (salePrice !== undefined) product.salePrice = salePrice;
       if (category) product.category = category;
@@ -84,16 +82,15 @@ export const createOrUpdateProduct = async (
         .json({ message: "Cập nhật sản phẩm thành công", product });
     }
 
-    // Không tồn tại: tạo mới
+    // Nếu chưa có, tạo mới với qrCode cố định
     const newProduct = await Product.create({
-      qrCode: qrCode ?? "",
+      qrCode,
       name: name ?? "",
       costPrice: costPrice ?? 0,
       salePrice: salePrice ?? 0,
       category: category ?? "Khác",
-      stockQty:stockQty ?? 0
+      imageUrl:imageUrl ?? ''
     });
-
     res
       .status(201)
       .json({ message: "Tạo sản phẩm mới thành công", product: newProduct });

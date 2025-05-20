@@ -5,11 +5,11 @@ import {
   getProducts,
   searchProducts,
 } from "../controllers/productController";
-
+import { upload } from '../config/s3';
 const productRouter = Router();
 
 // Tạo sản phẩm mới
-productRouter.post("/", createOrUpdateProduct);
+productRouter.post("/", upload.single('image') ,createOrUpdateProduct);
 
 // Lấy danh sách tất cả sản phẩm
 productRouter.get("/get-prod", getProducts);
