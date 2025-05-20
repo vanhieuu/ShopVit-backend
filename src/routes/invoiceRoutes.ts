@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import { getInvoiceById, generateInvoice } from '../controllers/invoiceController';
+import { getInvoice, generateInvoice, getAllInvoices } from '../controllers/invoiceController';
 
 const invoiceRouter = Router();
 
-// Lấy metadata hóa đơn theo ID
-invoiceRouter.get('/info/:invoiceId', getInvoiceById);
+// Lấy thông tin đơn bán (hóa đơn)
+invoiceRouter.get('/:saleId', getInvoice);
 
-// Sinh PDF hóa đơn và lưu thông tin theo saleId
-invoiceRouter.get('/generate/:saleId', generateInvoice);
+// Sinh PDF hóa đơn
+invoiceRouter.get('/:saleId/pdf', generateInvoice);
 
+// Lấy tất cả hóa đơn
+invoiceRouter.get('/', getAllInvoices);
 export default invoiceRouter;

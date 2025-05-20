@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createOrUpdateProduct,
+  deleteProduct,
   getProducts,
   searchProducts,
 } from "../controllers/productController";
@@ -15,7 +16,8 @@ productRouter.get("/get-prod", getProducts);
 
 productRouter.get("/get-prod/:category", getProducts);
 
-productRouter.get("/search",searchProducts)
+productRouter.get("/search", searchProducts);
 
+productRouter.delete("/", deleteProduct);
 
 export default productRouter;
