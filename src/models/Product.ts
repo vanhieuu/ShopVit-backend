@@ -12,7 +12,7 @@ export interface IProduct extends Document {
   unit?: any;
 }
 
-const productSchemea = new Schema<IProduct>(
+const productSchema = new Schema<IProduct>(
   {
     name: { type: String, required: true },
     qrCode: { type: String, required: true },
@@ -20,9 +20,9 @@ const productSchemea = new Schema<IProduct>(
     salePrice: { type: Number, required: true },
     stockQty: { type: Number, required: true, default: 0 },
     category: { type: String, required: true },
-    unit: { type: String || Number, required: true },
+    unit: { type: String || Number, required: true ,default:"cái"},
     imageUrl: { type: String },
   },
   { timestamps: true }
 );
-export default model<IProduct>("Product", productSchemea);
+export default model<IProduct>("Product", productSchema);
