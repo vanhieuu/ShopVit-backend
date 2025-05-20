@@ -35,6 +35,7 @@ export const getProducts = async (
       category: p.category || "Khác",
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
+      imageUrl: p.imageUrl,
       __v: p.__v,
     }));
     res.status(200).json({
@@ -62,34 +63,38 @@ export const createOrUpdateProduct = async (
   res: Response
 ): Promise<any> => {
   try {
-    const { qrCode, name, costPrice, salePrice, category,imageUrl } =
+    const { qrCode, name, costPrice, salePrice, category } =
       req.body as Partial<IProduct>;
+    // Lấy URL ảnh từ multer-s3 nếu có
+    const imageUrl = (req.file as any)?.location || req.body.imageUrl || "";
+
     if (!qrCode) {
       return res.status(400).json({ error: "Trường qrCode là bắt buộc" });
     }
 
-    // Luôn tìm đúng theo qrCode
+    // Tìm sản phẩm theo qrCode
     let product = await Product.findOne({ qrCode });
     if (product) {
-      // Nếu tồn tại, chỉ cập nhật các trường được truyền lên
+      // Cập nhật các trường nếu có
       if (name && name !== product.name) product.name = name;
       if (costPrice !== undefined) product.costPrice = costPrice;
       if (salePrice !== undefined) product.salePrice = salePrice;
       if (category) product.category = category;
+      if (imageUrl) product.imageUrl = imageUrl;
       await product.save();
       return res
         .status(200)
         .json({ message: "Cập nhật sản phẩm thành công", product });
     }
 
-    // Nếu chưa có, tạo mới với qrCode cố định
+    // Tạo mới nếu chưa tồn tại
     const newProduct = await Product.create({
       qrCode,
       name: name ?? "",
       costPrice: costPrice ?? 0,
       salePrice: salePrice ?? 0,
       category: category ?? "Khác",
-      imageUrl:imageUrl ?? ''
+      imageUrl: imageUrl ?? "",
     });
     res
       .status(201)
