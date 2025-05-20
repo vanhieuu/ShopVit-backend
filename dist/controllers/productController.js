@@ -102,7 +102,11 @@ const createOrUpdateProduct = async (req, res) => {
             await product.save();
             return res
                 .status(200)
-                .json({ message: "Cập nhật sản phẩm thành công", product });
+                .json({
+                message: "Cập nhật sản phẩm thành công",
+                product,
+                status: 200,
+            });
         }
         // Create new
         const newProduct = await Product_1.default.create({
@@ -117,7 +121,11 @@ const createOrUpdateProduct = async (req, res) => {
         });
         return res
             .status(201)
-            .json({ message: "Tạo sản phẩm mới thành công", product: newProduct });
+            .json({
+            message: "Tạo sản phẩm mới thành công",
+            product: newProduct,
+            status: 201,
+        });
     }
     catch (err) {
         console.error(err);

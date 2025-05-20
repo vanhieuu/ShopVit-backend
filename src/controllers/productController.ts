@@ -112,7 +112,11 @@ export const createOrUpdateProduct = async (
       await product.save();
       return res
         .status(200)
-        .json({ message: "Cập nhật sản phẩm thành công", product });
+        .json({
+          message: "Cập nhật sản phẩm thành công",
+          product,
+          status: 200,
+        });
     }
 
     // Create new
@@ -129,7 +133,11 @@ export const createOrUpdateProduct = async (
 
     return res
       .status(201)
-      .json({ message: "Tạo sản phẩm mới thành công", product: newProduct });
+      .json({
+        message: "Tạo sản phẩm mới thành công",
+        product: newProduct,
+        status: 201,
+      });
   } catch (err: any) {
     console.error(err);
     return res.status(400).json({ error: err.message });
