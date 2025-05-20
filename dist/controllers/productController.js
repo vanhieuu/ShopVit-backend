@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.searchProducts = exports.createOrUpdateProduct = exports.getProductsByCategory = exports.getProducts = exports.createProduct = void 0;
+exports.getAllCategory = exports.deleteProduct = exports.searchProducts = exports.createOrUpdateProduct = exports.getProductsByCategory = exports.getProducts = exports.createProduct = void 0;
 const Product_1 = __importDefault(require("../models/Product"));
 const createProduct = async (req, res) => {
     try {
@@ -152,3 +152,16 @@ const deleteProduct = async (req, res) => {
     }
 };
 exports.deleteProduct = deleteProduct;
+const getAllCategory = async (_req, res) => {
+    try {
+        const categories = await Product_1.default.distinct('category');
+        res.status(200).json({
+            status: 'success',
+            data: { categories }
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+exports.getAllCategory = getAllCategory;

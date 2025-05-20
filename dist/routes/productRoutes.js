@@ -11,4 +11,5 @@ productRouter.get("/get-prod", productController_1.getProducts);
 productRouter.get("/get-prod/:category", productController_1.getProducts);
 productRouter.get("/search", productController_1.searchProducts);
 productRouter.delete("/", productController_1.deleteProduct);
+productRouter.get('/get-cate', productController_1.getAllCategory);
 exports.default = productRouter;
