@@ -154,3 +154,14 @@ export const deleteProduct = async (
     res.status(500).json({ error: err.message });
   }
 };
+export const getAllCategory = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const categories = await Product.distinct('category');
+    res.status(200).json({
+      status: 'success',
+      data: { categories }
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
