@@ -36,6 +36,7 @@ const getProducts = async (_req, res) => {
             createdAt: p.createdAt,
             updatedAt: p.updatedAt,
             imageUrl: p.imageUrl,
+            unit: p.unit,
             __v: p.__v,
         }));
         res.status(200).json({
@@ -61,7 +62,7 @@ const getProductsByCategory = async (req, res) => {
 exports.getProductsByCategory = getProductsByCategory;
 const createOrUpdateProduct = async (req, res) => {
     try {
-        const { qrCode, name, costPrice, salePrice, category } = req.body;
+        const { qrCode, name, costPrice, salePrice, category, stockQty, unit } = req.body;
         // Lấy URL ảnh từ multer-s3 nếu có
         const imageUrl = req.file?.location || req.body.imageUrl || "";
         if (!qrCode) {
@@ -81,6 +82,8 @@ const createOrUpdateProduct = async (req, res) => {
                 product.category = category;
             if (imageUrl)
                 product.imageUrl = imageUrl;
+            if (stockQty)
+                product.stockQty += stockQty;
             await product.save();
             return res
                 .status(200)
@@ -94,6 +97,7 @@ const createOrUpdateProduct = async (req, res) => {
             salePrice: salePrice ?? 0,
             category: category ?? "Khác",
             imageUrl: imageUrl ?? "",
+            unit: unit ?? 'cái',
         });
         res
             .status(201)

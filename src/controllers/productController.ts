@@ -36,6 +36,7 @@ export const getProducts = async (
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
       imageUrl: p.imageUrl,
+      unit:p.unit,
       __v: p.__v,
     }));
     res.status(200).json({
@@ -63,7 +64,7 @@ export const createOrUpdateProduct = async (
   res: Response
 ): Promise<any> => {
   try {
-    const { qrCode, name, costPrice, salePrice, category } =
+    const { qrCode, name, costPrice, salePrice, category,stockQty,unit } =
       req.body as Partial<IProduct>;
     // Lấy URL ảnh từ multer-s3 nếu có
     const imageUrl = (req.file as any)?.location || req.body.imageUrl || "";
@@ -81,6 +82,9 @@ export const createOrUpdateProduct = async (
       if (salePrice !== undefined) product.salePrice = salePrice;
       if (category) product.category = category;
       if (imageUrl) product.imageUrl = imageUrl;
+      if(stockQty) product.stockQty += stockQty
+    
+      
       await product.save();
       return res
         .status(200)
@@ -95,6 +99,7 @@ export const createOrUpdateProduct = async (
       salePrice: salePrice ?? 0,
       category: category ?? "Khác",
       imageUrl: imageUrl ?? "",
+      unit:      unit      ?? 'cái',
     });
     res
       .status(201)
