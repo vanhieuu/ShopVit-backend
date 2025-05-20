@@ -62,49 +62,66 @@ const getProductsByCategory = async (req, res) => {
 exports.getProductsByCategory = getProductsByCategory;
 const createOrUpdateProduct = async (req, res) => {
     try {
-        const { qrCode, name, costPrice, salePrice, category, stockQty, unit } = req.body;
-        // Lấy URL ảnh từ multer-s3 nếu có
-        const imageUrl = req.file?.location || req.body.imageUrl || "";
+        // Multer-S3 will put the uploaded file's S3 URL here:
+        const imageUrl = req.file?.location || "";
+        // All form-data text fields come in as strings, so we need to coerce:
+        const { qrCode, name, category, unit } = req.body;
+        // Parse numbers (or undefined if absent/invalid)
+        const costPrice = req.body.costPrice != null ? parseFloat(req.body.costPrice) : undefined;
+        const salePrice = req.body.salePrice != null ? parseFloat(req.body.salePrice) : undefined;
+        const stockQty = req.body.stockQty != null ? parseInt(req.body.stockQty, 10) : undefined;
         if (!qrCode) {
             return res.status(400).json({ error: "Trường qrCode là bắt buộc" });
         }
-        // Tìm sản phẩm theo qrCode
+        // Find existing
         let product = await Product_1.default.findOne({ qrCode });
         if (product) {
-            // Cập nhật các trường nếu có
-            if (name && name !== product.name)
+            // Update only the provided fields
+            if (name && name !== product.name) {
                 product.name = name;
-            if (costPrice !== undefined)
+            }
+            if (!isNaN(costPrice)) {
                 product.costPrice = costPrice;
-            if (salePrice !== undefined)
+            }
+            if (!isNaN(salePrice)) {
                 product.salePrice = salePrice;
-            if (category)
+            }
+            if (category) {
                 product.category = category;
-            if (imageUrl)
+            }
+            if (unit) {
+                product.unit = unit;
+            }
+            if (!isNaN(stockQty)) {
+                // you may choose to set or increment; here we increment
+                product.stockQty = product.stockQty + stockQty;
+            }
+            if (imageUrl) {
                 product.imageUrl = imageUrl;
-            if (stockQty)
-                product.stockQty += stockQty;
+            }
             await product.save();
             return res
                 .status(200)
                 .json({ message: "Cập nhật sản phẩm thành công", product });
         }
-        // Tạo mới nếu chưa tồn tại
+        // Create new
         const newProduct = await Product_1.default.create({
             qrCode,
             name: name ?? "",
-            costPrice: costPrice ?? 0,
-            salePrice: salePrice ?? 0,
+            costPrice: !isNaN(costPrice) ? costPrice : 0,
+            salePrice: !isNaN(salePrice) ? salePrice : 0,
             category: category ?? "Khác",
+            unit: unit ?? "cái",
+            stockQty: !isNaN(stockQty) ? stockQty : 0,
             imageUrl: imageUrl ?? "",
-            unit: unit ?? 'cái',
         });
-        res
+        return res
             .status(201)
             .json({ message: "Tạo sản phẩm mới thành công", product: newProduct });
     }
     catch (err) {
-        res.status(400).json({ error: err.message });
+        console.error(err);
+        return res.status(400).json({ error: err.message });
     }
 };
 exports.createOrUpdateProduct = createOrUpdateProduct;
@@ -159,14 +176,14 @@ exports.deleteProduct = deleteProduct;
 const getAllCategory = async (_req, res) => {
     try {
         // Lấy category từ database
-        const dbCategories = await Product_1.default.distinct('category');
+        const dbCategories = await Product_1.default.distinct("category");
         // Danh sách mặc định bạn muốn luôn hiển thị
-        const defaultCategories = ['Khác'];
+        const defaultCategories = ["Khác"];
         // Kết hợp và loại bỏ trùng
         const allCategories = Array.from(new Set([...dbCategories, ...defaultCategories]));
         res.status(200).json({
-            status: 'success',
-            data: { categories: allCategories }
+            status: "success",
+            data: { categories: allCategories },
         });
     }
     catch (err) {
