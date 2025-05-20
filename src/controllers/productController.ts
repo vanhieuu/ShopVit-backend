@@ -156,10 +156,15 @@ export const deleteProduct = async (
 };
 export const getAllCategory = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const categories = await Product.distinct('category');
+    // Lấy category từ database
+    const dbCategories: string[] = await Product.distinct('category');
+    // Danh sách mặc định bạn muốn luôn hiển thị
+    const defaultCategories = ['Khác'];
+    // Kết hợp và loại bỏ trùng
+    const allCategories = Array.from(new Set([...dbCategories, ...defaultCategories]));
     res.status(200).json({
       status: 'success',
-      data: { categories }
+      data: { categories: allCategories }
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

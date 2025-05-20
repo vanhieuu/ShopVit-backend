@@ -154,10 +154,15 @@ const deleteProduct = async (req, res) => {
 exports.deleteProduct = deleteProduct;
 const getAllCategory = async (_req, res) => {
     try {
-        const categories = await Product_1.default.distinct('category');
+        // Lấy category từ database
+        const dbCategories = await Product_1.default.distinct('category');
+        // Danh sách mặc định bạn muốn luôn hiển thị
+        const defaultCategories = ['Khác'];
+        // Kết hợp và loại bỏ trùng
+        const allCategories = Array.from(new Set([...dbCategories, ...defaultCategories]));
         res.status(200).json({
             status: 'success',
-            data: { categories }
+            data: { categories: allCategories }
         });
     }
     catch (err) {
