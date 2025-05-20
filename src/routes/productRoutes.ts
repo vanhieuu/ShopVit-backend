@@ -21,6 +21,6 @@ productRouter.get("/search", searchProducts);
 
 productRouter.delete("/", deleteProduct);
 
-productRouter.get('/categories', getAllCategory);
+productRouter.get('/get-cate', getAllCategory);
 
 export default productRouter;
